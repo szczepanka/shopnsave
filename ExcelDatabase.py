@@ -2,7 +2,7 @@
 # EXCEL DATABASE MANAGEMENT
 
 import pandas as pd
-from SallingGroup_Api import food_waste_offers_api
+from SallingGroup_Api import food_waste_offers_api, get_zip_list
 
 # IMPORT STATEMENT EXPLANATION:
 # from the file "SallingGroup_Api.py" the script import the function "food_waste_offers_api" from this file
@@ -12,8 +12,18 @@ from SallingGroup_Api import food_waste_offers_api
 
 # Export to EXCEL
 
-def export_api_data_to_csv(api_data : list):
+def export_api_data_to_csv(api_data):
 
+	try:
+		if 'code' in api_data.keys():
+			print("Invalid Zip")
+			return
+
+		elif api_data['statusCode'] == 429:
+			print("Limit reached: blocked by API")
+			return
+
+	except Exception as e: ()
 
 	try: 
 		existingData = pd.read_csv("products.csv")
@@ -32,9 +42,14 @@ def export_api_data_to_csv(api_data : list):
 	# 	print("Something went wrong..")
 	# 	return
 
+	# print(api_data)
+
 	product_dict = {}
 
+	# print(api_data)
+
 	for storeItem in api_data:
+
 		for productItem in storeItem['clearances']:
 			
 			product_key = str(productItem['offer']['ean'])
@@ -43,9 +58,12 @@ def export_api_data_to_csv(api_data : list):
 			product_dict[product_key]['store brand'] = storeItem['store']['brand']
 			product_dict[product_key]['store name'] = storeItem['store']['name']
 			product_dict[product_key]['store id'] = storeItem['store']['id']
+			product_dict[product_key]['store zip'] = storeItem['store']['address']['zip']
+
+			# print(storeItem['store'])
 		
 	products_df = pd.DataFrame.from_dict(product_dict, orient='index')
-	products_df = products_df.set_index('ean')	
+	if not products_df.empty: products_df = products_df.set_index('ean')	
 
 	# print("\n\n", product_dict)
 	# print(products_df)
@@ -60,8 +78,18 @@ def export_api_data_to_csv(api_data : list):
 	print(f"{products_acc.shape[0] - existingData.shape[0]} lines added to the Excel Database since last run")
 	print(f"{products_acc.shape[0]} records in the Excel Database now")
 	products_acc.to_csv("products.csv")
-
 	return
 
-dictData = food_waste_offers_api()
-export_api_data_to_csv(dictData)
+def update_all_stores():
+
+	zipList = get_zip_list()
+
+	for zip in zipList:
+		print(f'{zip}:')
+		dictData = food_waste_offers_api(zip)
+		export_api_data_to_csv(dictData)
+
+
+if __name__ == '__main__':
+
+	update_all_stores()

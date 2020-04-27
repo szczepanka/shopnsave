@@ -18,11 +18,11 @@ headers = { 'Authorization' : 'Bearer %s' % bearer_token }
 # Query with zip code as parameter to get stores in city and their food waste offers
 
 
-def food_waste_offers_api():
+def food_waste_offers_api(zip:int):
 
 	url = 'https://api.sallinggroup.com/v1/food-waste/da2957d5-67ec-4f24-9c49-235b6712e063?'
 
-	params = { 'zip' : 2000 }
+	params = { 'zip' : zip }
 
 	response = requests.get(url, params = params, headers = headers)
 	data_dict_list = json.loads(response.content)
@@ -89,3 +89,35 @@ def similar_products_api():
 
 # INVOCATION
 # similar_products_api()
+
+# ---------
+
+# API 4 
+
+# API CALL: All Stores
+# Query
+
+def get_stores():
+
+	url_stores = 'https://api.sallinggroup.com/v2/stores'
+
+	params = { 'per_page' : 1500 }		# 1484 stores in total
+
+	response = requests.get(url_stores, params = params, headers = headers)
+	data_dict_list = json.loads(response.content)
+
+	return data_dict_list
+
+
+def get_zip_list():
+
+	stores = get_stores()
+	zips = []
+
+	for store in stores:
+		zipCode = store['address']['zip']
+		if store['address']['country'] == 'DK':
+			if zipCode not in zips:
+				zips.append(zipCode)
+
+	return zips
