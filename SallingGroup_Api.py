@@ -20,17 +20,20 @@ headers = { 'Authorization' : 'Bearer %s' % bearer_token }
 
 def food_waste_offers_api(zip:int):
 
-	url = 'https://api.sallinggroup.com/v1/food-waste/da2957d5-67ec-4f24-9c49-235b6712e063?'
+	url = 'https://api.sallinggroup.com/v1/food-waste/?'
 
 	params = { 'zip' : zip }
 
-	response = requests.get(url, params = params, headers = headers)
-	data_dict_list = json.loads(response.content)
-	
+	try:
+		response = requests.get(url, params = params, headers = headers)
+		data_dict_list = json.loads(response.content)
+		return data_dict_list
+	except:
+		return "Error in zip code api data extraction"
+
 	# !!! Remove # to see output
 	# print(response.text)
 
-	return data_dict_list
 
 # INVOCATION
 # food_waste_offers_api()

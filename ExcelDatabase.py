@@ -46,7 +46,7 @@ def export_api_data_to_csv(api_data):
 
 	product_dict = {}
 
-	# print(api_data)
+	# if not isinstance(api_data, list): api_data = [api_data] 
 
 	for storeItem in api_data:
 
@@ -63,6 +63,7 @@ def export_api_data_to_csv(api_data):
 			# print(storeItem['store'])
 		
 	products_df = pd.DataFrame.from_dict(product_dict, orient='index')
+
 	if not products_df.empty: products_df = products_df.set_index('ean')	
 
 	# print("\n\n", product_dict)
@@ -82,14 +83,18 @@ def export_api_data_to_csv(api_data):
 
 def update_all_stores():
 
-	zipList = get_zip_list()
+	zipList = get_zip_list()[100:]
 
 	for zip in zipList:
 		print(f'{zip}:')
 		dictData = food_waste_offers_api(zip)
+		if dictData == "Error in zip code api data extraction": 
+			continue
 		export_api_data_to_csv(dictData)
 
 
 if __name__ == '__main__':
 
+	# export_api_data_to_csv(food_waste_offers_api(2000))
+	# food_waste_offers_api(8000)
 	update_all_stores()
