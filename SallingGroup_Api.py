@@ -76,11 +76,11 @@ def suggested_products_api():
 # Query with productID as parameter to get similar products to this initial product
 
 
-def similar_products_api():
+def similar_products_api(productId = 31802):
 
 	url_similar_products = 'https://api.sallinggroup.com/v1-beta/product-suggestions/similar-products?'
 
-	params = { 'productId' : 5701205005559 }
+	params = { 'productId' : productId }
 
 	response = requests.get(url_similar_products, params = params, headers = headers)
 	data_dict_list = json.loads(response.content)

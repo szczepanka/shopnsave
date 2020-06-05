@@ -3,6 +3,7 @@
 
 import pandas as pd
 from SallingGroup_Api import food_waste_offers_api, get_zip_list
+import time
 
 # IMPORT STATEMENT EXPLANATION:
 # from the file "SallingGroup_Api.py" the script import the function "food_waste_offers_api" from this file
@@ -83,11 +84,15 @@ def export_api_data_to_csv(api_data):
 
 def update_all_stores():
 
-	zipList = get_zip_list()[100:]
+	zipList = get_zip_list()
 
 	for zip in zipList:
+
+		time.sleep(2)
+
 		print(f'{zip}:')
 		dictData = food_waste_offers_api(zip)
+		# print(dictData)
 		if dictData == "Error in zip code api data extraction": 
 			continue
 		export_api_data_to_csv(dictData)
