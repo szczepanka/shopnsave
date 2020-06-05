@@ -60,6 +60,8 @@ def export_api_data_to_csv(api_data):
 			product_dict[product_key]['store name'] = storeItem['store']['name']
 			product_dict[product_key]['store id'] = storeItem['store']['id']
 			product_dict[product_key]['store zip'] = storeItem['store']['address']['zip']
+			product_dict[product_key]['store zip'] = storeItem['store']['address']['zip']
+			product_dict[product_key]['productDescription'] = productItem['product']['description']
 
 			# print(storeItem['store'])
 		
@@ -84,7 +86,7 @@ def export_api_data_to_csv(api_data):
 
 def update_all_stores():
 
-	zipList = get_zip_list()
+	zipList = get_zip_list()[:5]
 
 	for zip in zipList:
 
