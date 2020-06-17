@@ -27,7 +27,7 @@ class GooglePlaces(object):
 
     def search_places_by_coordinates(self, location, radius, types):
         endpoint_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/output?"
-        #url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=1500&type=restaurant&keyword=cruise&key=" + self.api_key #THAT IS NOT NEEDED, IS IT?
+        url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=1500&type=restaurant&keyword=cruise&key=" + self.api_key #THAT IS NOT NEEDED, IS IT?
         places = []
 
         print(location)
@@ -36,13 +36,13 @@ class GooglePlaces(object):
             'key' :	self.api_key,
             #'location' : 	f"{location[0]},{location[1]}",
             #'location' : 	'lat,lng',
-           'location' : 	"55.7066279,12.5790428",  #CAN I NOT USE THE VARIABLES LAT, LNG HERE?
+            # 'location' : 	55.7066279,12.5790428, #CAN I NOT USE THE VARIABLES LAT, LNG HERE?
             'radius' :		radius,
             'type' :		types
            # 'rankby' :		"distance"
         }
         res = requests.get(endpoint_url, params = params) #LINE 43 TO 45 NOT NECESSARY?
-        #res = requests.get(url)
+        res = requests.get(url)
         #print(res)
 
         results = json.loads(res.content)
