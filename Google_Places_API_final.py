@@ -10,6 +10,21 @@ class GooglePlaces(object):
         super(GooglePlaces, self).__init__()
         self.api_key = api_key
 
+    def turn_address_into_coordinates(self, location):
+        endpoint_url = "https://maps.googleapis.com/maps/api/geocode/json?"
+
+        params = {
+            'key' : self.api_key,
+            'address' : location
+        }
+        res = requests.get(endpoint_url, params = params)
+        addresscoordinates = json.loads(res.content)
+
+        lat = addresscoordinates['results'][0]['geometry']['location']['lat']
+        lng = addresscoordinates['results'][0]['geometry']['location']['lng']
+
+        return lat, lng
+
     def search_places_by_coordinates(self, location, radius, types):
         endpoint_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/output?"
         url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=1500&type=restaurant&keyword=cruise&key=" + self.api_key
@@ -42,21 +57,6 @@ class GooglePlaces(object):
             time.sleep(2)
 
         return places
-
-    def turn_address_into_coordinates(self, location):
-        endpoint_url = "https://maps.googleapis.com/maps/api/geocode/json?"
-
-        params = {
-            'key' : self.api_key,
-            'address' : location
-        }
-        res = requests.get(endpoint_url, params = params)
-        addresscoordinates = json.loads(res.content)
-
-        lat = addresscoordinates['results'][0]['geometry']['location']['lat']
-        lng = addresscoordinates['results'][0]['geometry']['location']['lng']
-
-        return lat, lng
 
     def get_place_details(self, place_id, fields):
         endpoint_url = "https://maps.googleapis.com/maps/api/place/details/json"
