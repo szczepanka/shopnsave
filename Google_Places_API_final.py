@@ -35,8 +35,8 @@ class GooglePlaces(object):
         params = {
             'key' :	self.api_key,
             #'location' : 	f"{location[0]},{location[1]}",
-            'location' : 	'lat,lng',
-           # 'location' : 	"55.7066279, 12.5790428",  #CAN I NOT USE THE VARIABLES LAT, LNG HERE?
+            #'location' : 	'lat,lng',
+           'location' : 	"55.7066279,12.5790428",  #CAN I NOT USE THE VARIABLES LAT, LNG HERE?
             'radius' :		radius,
             'type' :		types
            # 'rankby' :		"distance"
