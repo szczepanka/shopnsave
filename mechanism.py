@@ -9,12 +9,11 @@ Created on Mon May  4 12:50:08 2020
 import pandas as pd
 import numpy as np
 from datetime import date
-import datetime
+import datetime, time
 
-from SallingGroup_Api import similar_products_api
+from SallingGroup_Api import similar_products_api, suggested_products_api
 
-mydataset = pd.read_csv('products.csv')
-
+mydataset = pd.read_csv('products.csv', index_col = 'ean')
 userInput = pd.read_excel('UserInput.xlsx')
 filterParameterDict = dict(zip(userInput.parameter, userInput.value))
 
@@ -35,17 +34,13 @@ def product_filter (filter_dict):
 
 	for key, value in filter_dict.items():
 
-		# print(key, value)
-
-		# search = (mydataset['store_zip']==zipcode)
-		# show_products = (mydataset[search])
-
-		if key == "percentDiscount": 
-			products = products[products[key] >= value]
-		else:
-			# print(products)
-			products = products[products[key]==value]
-			# print("AFTER:", products)
+		try:
+			if key == "percentDiscount": 
+				products = products[products[key] >= value]
+			else:
+				products = products[products[key]==value]
+		except:
+			continue
 
 	products['endTime'] = products['endTime'].apply(lambda x: datetime.datetime.strptime(x[:10], '%Y-%m-%d')) 
 	print(products['endTime'])
@@ -53,16 +48,33 @@ def product_filter (filter_dict):
 	today = date.today()
 	products = products[products['endTime'] >= today]
 
-	print("hej", similar_products_api(5712580738598))
+	return products
+
+def add_suggested_products(products_df):
+
+	for index, item in products_df.head(5).iterrows():
+		print(item)
+
+		time.sleep(1)
+
+		try:
+			suggested_product = suggested_products_api(item['productDescription'])['suggestions'][0]
+			products_df.loc[suggested_product['id'], 'originalPrice'] = suggested_product['price']
+			products_df.loc[suggested_product['id'], 'productDescription'] = suggested_product['title']
+			products_df.loc[suggested_product['id'], 'productID'] = suggested_product['prod_id']
+			print(suggested_product)
+		except: ()
+
+	return products_df
+
+
+if __name__ == "__main__":
+
+	products = product_filter(filterParameterDict)
+	products = add_suggested_products(products)
+
+	# products.to_excel("MechanismOutput.xlsx")
 
 	print(products)
-
-	# show_products = (mydataset[search])
-	# show_products.to_excel(r'MechanismOutput.xlsx', index = False)
-
-
-# product_filter(1958)
-product_filter(filterParameterDict)
-    
 
     

@@ -53,18 +53,20 @@ def export_api_data_to_csv(api_data):
 
 		for productItem in storeItem['clearances']:
 			
-			product_key = str(productItem['offer']['ean'])
+			try:
+				product_key = str(productItem['offer']['ean'])
 
-			product_dict[product_key] = productItem['offer']
-			product_dict[product_key]['store brand'] = storeItem['store']['brand']
-			product_dict[product_key]['store name'] = storeItem['store']['name']
-			product_dict[product_key]['store id'] = storeItem['store']['id']
-			product_dict[product_key]['store zip'] = storeItem['store']['address']['zip']
-			product_dict[product_key]['store zip'] = storeItem['store']['address']['zip']
-			product_dict[product_key]['productDescription'] = productItem['product']['description']
+				product_dict[product_key] = productItem['offer']
+				product_dict[product_key]['store brand'] = storeItem['store']['brand']
+				product_dict[product_key]['store name'] = storeItem['store']['name']
+				product_dict[product_key]['store id'] = storeItem['store']['id']
+				product_dict[product_key]['store zip'] = storeItem['store']['address']['zip']
+				product_dict[product_key]['store zip'] = storeItem['store']['address']['zip']
+				product_dict[product_key]['productDescription'] = productItem['product']['description']
 
-			# print(storeItem['store'])
-		
+			except (KeyError):
+				continue
+			
 	products_df = pd.DataFrame.from_dict(product_dict, orient='index')
 
 	if not products_df.empty: products_df = products_df.set_index('ean')	
@@ -86,11 +88,11 @@ def export_api_data_to_csv(api_data):
 
 def update_all_stores():
 
-	zipList = get_zip_list()[:5]
+	zipList = get_zip_list()
 
 	for zip in zipList:
 
-		time.sleep(2)
+		time.sleep(1)
 
 		print(f'{zip}:')
 		dictData = food_waste_offers_api(zip)

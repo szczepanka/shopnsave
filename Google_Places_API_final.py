@@ -2,7 +2,8 @@
 # Google Cloud Platform
 # adkr19ad@students.cbs.dk
 
-import requests, json, time
+import requests, json, time, openpyxl
+import pandas as pd
 
 class GooglePlaces(object):
 
@@ -25,37 +26,36 @@ class GooglePlaces(object):
 
         return lat, lng
 
-    def search_places_by_coordinates(self, location, radius, types):
-        endpoint_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/output?"
-        url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=1500&type=restaurant&keyword=cruise&key=" + self.api_key #THAT IS NOT NEEDED, IS IT?
-        places = []
+    def search_places_by_coordinates(self, location, radius, types, store_brand):
+        # endpoint_url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={location[0]},{location[1]}&radius={radius}&type={types}&key={self.api_key}"
+        # url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=1500&type=restaurant&keyword=cruise&key=" + self.api_key #THAT IS NOT NEEDED, IS IT?
 
-        print(location)
+        endpoint_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
+
+        places = []
 
         params = {
             'key' :	self.api_key,
-            #'location' : 	f"{location[0]},{location[1]}",
-            #'location' : 	'lat,lng',
-            # 'location' : 	55.7066279,12.5790428, #CAN I NOT USE THE VARIABLES LAT, LNG HERE?
+            'location' : 	f"{location[0]},{location[1]}",
             'radius' :		radius,
-            'type' :		types
-           # 'rankby' :		"distance"
+            'type' :		types,
+            'keyword' :     store_brand
         }
-        res = requests.get(endpoint_url, params = params) #LINE 43 TO 45 NOT NECESSARY?
-        res = requests.get(url)
-        #print(res)
+        res = requests.get(endpoint_url, params = params) 
 
         results = json.loads(res.content)
-        print(results)
         places.extend(results['results'])
-        time.sleep(2)
+        time.sleep(1)
 
-        while 'next_page_token' in results:
-            params['page_token'] = results['next_page_token']
-            res = requests.get(endpoint_url, params = params)
-            results = json.loads(res.content)
-            places.extend(results['results'])
-            time.sleep(2)
+        # while 'next_page_token' in results:
+
+        #     params['page_token'] = results['next_page_token']
+        #     res = requests.get(endpoint_url, params = params)
+        #     results = json.loads(res.content)
+
+        #     print(results)
+        #     places.extend(results['results'])
+        #     time.sleep(2)
 
         return places
 
@@ -70,6 +70,22 @@ class GooglePlaces(object):
         place_details = json.loads(res.content)
         return place_details
 
+    def getStoresDataFrame(self, coordinates : tuple, store_brands = ['Netto', 'Føtex', 'Bilka']):
+
+        stores_df = pd.DataFrame()
+
+        for store_brand in store_brands:
+
+            stores = api_coordinates.search_places_by_coordinates(coordinates, inputs['radius'], inputs['type'], store_brand = store_brand)
+
+            for store in stores:
+                stores_df.loc[store['place_id'], 'brand'] = store['name']
+                stores_df.loc[store['place_id'], 'address'] = store['vicinity']
+                stores_df.loc[store['place_id'], 'rating'] = store['rating']
+
+        print(stores_df)
+        return stores_df
+
 
 if __name__ == "__main__":
 
@@ -78,18 +94,28 @@ if __name__ == "__main__":
     api_coordinates = GooglePlaces(api_key1) 
     api_nearby_details = GooglePlaces(api_key2) 
 
+    userInput = pd.read_excel('UserInput.xlsx')
+    filterParameterDict = dict(zip(userInput.parameter, userInput.value))
+
     inputs = { 
-        'location' : "Jellingegade 7",
-        'radius' : 	"1000",
-        'type' :	'supermarket',
-        'fields' : 	['name', 'formatted_address', 'international_phone_number', 'website', 'review', 'geometry', 'vicinity','utc_offset', 'price_level', 'rating']
+        'location'      : '',
+        'radius'        : '',
+        'store_brand'   : '',
+        'type'          : 'supermarket'
     }
-    coordinates = api_coordinates.turn_address_into_coordinates(inputs['location'])
+    try:
+        inputs['location'] = filterParameterDict['address']
+        inputs['radius'] = filterParameterDict['radius']
+        inputs['store_brand'] = filterParameterDict['store_brand']
 
-    #places = []
-    places = api_coordinates.search_places_by_coordinates(coordinates, inputs['radius'], inputs['type'])
-    # print(places)
+        coordinates = api_coordinates.turn_address_into_coordinates(inputs['location'])
 
+        stores = api_coordinates.getStoresDataFrame(coordinates = coordinates, store_brands = [ inputs['store_brand'] ])
+        stores.to_excel("StoresNearby.xlsx")
+
+    except: print("fejl")
+
+'''
     for place in places:
 
         details = api_nearby_details.get_place_details(place['place_id'], inputs['fields'])
@@ -149,3 +175,4 @@ if __name__ == "__main__":
             print(f"Rating: {rating}")
 
         print("-------------------------")
+        '''

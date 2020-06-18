@@ -49,11 +49,12 @@ def food_waste_offers_api(zip:int):
 # So we use "SUGGESTED PRODUCTS" and use description obtained from Food Waste Call
 # So now we can find the product, and get product ID and more
 
-def suggested_products_api():
+def suggested_products_api(product_description):
 
 	url_suggested_products = 'https://api.sallinggroup.com/v1-beta/product-suggestions/relevant-products?'
 
 	params = { 'query' : 'GRÆSK FLADBRØD DELPANE' }
+	params = { 'query' : product_description }
 
 	response = requests.get(url_suggested_products, params = params, headers = headers)
 	data_dict_list = json.loads(response.content)
