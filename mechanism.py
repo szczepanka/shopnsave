@@ -52,7 +52,7 @@ def product_filter (filter_dict):
 
 def add_suggested_products(products_df):
 
-	for index, item in products_df.head(5).iterrows():
+	for index, item in products_df.iterrows():
 		print(item)
 
 		time.sleep(1)
@@ -62,19 +62,15 @@ def add_suggested_products(products_df):
 			products_df.loc[suggested_product['id'], 'originalPrice'] = suggested_product['price']
 			products_df.loc[suggested_product['id'], 'productDescription'] = suggested_product['title']
 			products_df.loc[suggested_product['id'], 'productID'] = suggested_product['prod_id']
-			print(suggested_product)
 		except: ()
 
 	return products_df
-
 
 if __name__ == "__main__":
 
 	products = product_filter(filterParameterDict)
 	products = add_suggested_products(products)
+	products.to_excel("MechanismOutput.xlsx")
 
-	# products.to_excel("MechanismOutput.xlsx")
-
-	print(products)
 
     

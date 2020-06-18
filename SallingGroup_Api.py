@@ -53,7 +53,6 @@ def suggested_products_api(product_description):
 
 	url_suggested_products = 'https://api.sallinggroup.com/v1-beta/product-suggestions/relevant-products?'
 
-	params = { 'query' : 'GRÆSK FLADBRØD DELPANE' }
 	params = { 'query' : product_description }
 
 	response = requests.get(url_suggested_products, params = params, headers = headers)
